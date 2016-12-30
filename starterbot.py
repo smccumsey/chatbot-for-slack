@@ -1,6 +1,7 @@
 import os
 import time
 import math
+from random import random
 from slackclient import SlackClient
 
 
@@ -69,7 +70,7 @@ FALLBACK_PROMPT_1 = ['Are you done playing Number Genie?']
 FALLBACK_PROMPT_2 = ['Since I\'m still having trouble, so I\'ll stop here. Let’s play again soon.']
 
 DEEPLINK_PROMPT_1 = ['%s has %s letters. It\'s higher than %s.', '%s has %s letters, but the number is higher than %s.']
-const DEEPLINK_PROMPT_2 = ['%s has %s letters. It\'s lower than %s.', '%s has %s letters, but the number is lower than %s.']
+DEEPLINK_PROMPT_2 = ['%s has %s letters. It\'s lower than %s.', '%s has %s letters, but the number is lower than %s.']
 DEEPLINK_PROMPT_3 = ['%s has %s letters. Wow! The number I was thinking of was %s!', '%s has %s letters. Amazing! The number I was thinking of was %s!']
 
 NO_INPUT_PROMPTS = ['I didn\'t hear a number', 'If you\'re still there, what\'s your guess?', 'We can stop here. Let\'s play again soon.']
@@ -79,19 +80,19 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
 #random number for guessing game
 def getRandomNumber(min, max):
-    return math.floor(math.random() * (max - min + 1)) + min
+    return math.floor(random() * (max - min + 1)) + min
 
 # Utility function to pick prompts
 def getRandomPrompt(array):
-    return array[math.floor(math.random() * length(array))]
+    return array[math.floor(random() * len(array))]
 
 def generateAnswer(bot):
     answer = getRandomNumber(MIN,MAX)
     bot['answer'] = answer
     bot['guessCount'] = 0
     bot['fallbackCount'] = 0
-    bot['ask'] = getRandomPrompt(GREETING_PROMPTS)) + ' ' + \
-          getRandomPrompt(INVOCATION_PROMPT), MIN, MAX), NO_INPUT_PROMPTS)
+    bot['ask'] = getRandomPrompt(GREETING_PROMPTS) + ' ' + \
+          getRandomPrompt(INVOCATION_PROMPT) % (MIN, MAX) % NO_INPUT_PROMPTS
     return bot
 
 
@@ -105,6 +106,9 @@ def handle_command(command, channel):
                "* command with numbers, delimited by spaces."
     if command.startswith(EXAMPLE_COMMAND):
         response = "Sure...write some more code then I can do that!"
+        bot = {}
+        bot = generateAnswer(bot)
+        response = bot['ask']
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
